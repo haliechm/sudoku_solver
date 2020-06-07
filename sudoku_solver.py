@@ -12,40 +12,83 @@ class Solver(wx.Frame):
 
     def onClick(self, event):
 
-
-        print(self.my_controls[0].GetValue())
-
-        row1 = []
-        row2 = []
-        row3 = []
-        row4 = []
-        row5 = []
-        row6 = []
-        row7 = []
-        row8 = []
-        row9 = []
-
+        possibilities = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
+        squares = []
         for i in range(81):
-            if i <= 8:
-                row1.append(self.my_controls[i].GetValue())
-            elif i <= 17:
-                row2.append(self.my_controls[i].GetValue())
-            elif i <= 26:
-                row3.append(self.my_controls[i].GetValue())
-            elif  i<= 35:
-                row4.append(self.my_controls[i].GetValue())
-            elif i <= 44:
-                row5.append(self.my_controls[i].GetValue())
-            elif i <= 53:
-                row6.append(self.my_controls[i].GetValue())
-            elif i <= 61:
-                row7.append(self.my_controls[i].GetValue())
-            elif i <= 70:
-                row8.append(self.my_controls[i].GetValue())
+            squares.append(possibilities)
+        i=0
+        for square in self.my_controls:
+            if(square.GetValue() != ""):
+                squares[i] = [square.GetValue()]
+            i+=1
+
+        for square in squares:
+            if len(square) == 1:
+                continue
             else:
-                row9.append(self.my_controls[i].GetValue())
+                row_indices = self.determineRow(51)
+                col_indices = self.determineCol(51)
+                # box_indices = self.determineBox(80)
+                print(row_indices)
+                print(col_indices)
+                # print(box_indices)
+
         #solve puzzle here
         #then reveal in red the answers
+
+    def determineCol(self, index):
+        col_indices = []
+        start_number = 0
+
+        start_number = index % 9
+
+
+        for i in range(9):
+            col_indices.append(start_number)
+            start_number += 9
+
+        return col_indices
+
+    def determineRow(self, index):
+        row_indices = []
+        mult = 0
+        if index >= 0 and index <= 8:
+            mult = 0
+        elif index <= 17:
+            mult = 1
+        elif index <= 26:
+            mult = 2
+        elif index <= 35:
+            mult = 3
+        elif index <= 44:
+            mult = 4
+        elif index <= 53:
+            mult = 5
+        elif index <= 62:
+            mult = 6
+        elif index <= 71:
+            mult = 7
+        else:
+            mult = 8
+
+        for i in range(9):
+            row_indices.append(mult*9 + i)
+
+        return row_indices
+
+    def determineBox(self, index):
+
+        box_indices = []
+
+        for i in range(9):
+            if i <= 1 or i <= 4 or i <= 7:
+                box_indices.append(start_number)
+                start_number += 1
+            else:
+                box_indices.append(start_number)
+                start_number += 7
+
+            print(i)
 
     def InitUI(self):
         vbox = wx.BoxSizer(wx.VERTICAL)
