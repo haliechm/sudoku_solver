@@ -17,78 +17,74 @@ class Solver(wx.Frame):
         for i in range(81):
             squares.append(possibilities)
         i=0
-        for square in self.my_controls:
-            if(square.GetValue() != ""):
-                squares[i] = [square.GetValue()]
+        for sq in self.my_controls:
+            if(sq.GetValue() != ""):
+                squares[i] = [sq.GetValue()]
             i+=1
 
+        i=0
         for square in squares:
             if len(square) == 1:
+                # go to next loop
+                print("YEP")
+                i+=1
                 continue
+
             else:
-                row_indices = self.determineRow(51)
-                col_indices = self.determineCol(51)
+                row_indices = self.determineRow(i)
+                col_indices = self.determineCol(i)
+                i+=1
                 # box_indices = self.determineBox(80)
-                print(row_indices)
-                print(col_indices)
+                # print(row_indices)
+                # print(col_indices)
                 # print(box_indices)
+
+                # have row indices
+                # have list of lists that contain possible numbers for each square
+                # square contains list of possibilities for current squares
+                # go through row indices and if any are single then get rid of that value from current squares
+
+                for index in row_indices:
+                    # print("index" + str(index))
+                    if len(squares[index]) == 1:
+                        # remove that value from the current square's list
+                        # this is a list
+                        taken_value = str(squares[index][0])
+                        # print("Taken Value:" + taken_value)
+                        # print("type of taken value: " + str(type(taken_value)))
+
+                        try:
+                            print("Removing taken value: " + taken_value)
+                            square.remove(taken_value)
+                            print("-----------" + str(taken_value))
+                        except ValueError:
+                            print("GGGGGGetting an error")
+                            pass
+
+                        # for value in square:
+                        #     # print("------Value:" + value)
+                        #     # print("type of value: " + str(type(value)))
+                        #     if value == taken_value:
+                        #         print("HOORAH")
+                        #     else:
+                        #         print("BOOOOO")
+
+
+                        # square.remove(taken_value)
+        j=1
+        # for index in col_indices:
+        #     if len(squares[index]) == 1:
+        #                 # remove that value from the current square's list
+        #         pass
+        #         # then do the same for box box_indices
+        for square in squares:
+            print("____!!!!______{}{}".format(j, square))
+            j += 1
+                # end of for loop: go to next square and do it all again
 
         #solve puzzle here
         #then reveal in red the answers
 
-    def determineCol(self, index):
-        col_indices = []
-        start_number = 0
-
-        start_number = index % 9
-
-
-        for i in range(9):
-            col_indices.append(start_number)
-            start_number += 9
-
-        return col_indices
-
-    def determineRow(self, index):
-        row_indices = []
-        mult = 0
-        if index >= 0 and index <= 8:
-            mult = 0
-        elif index <= 17:
-            mult = 1
-        elif index <= 26:
-            mult = 2
-        elif index <= 35:
-            mult = 3
-        elif index <= 44:
-            mult = 4
-        elif index <= 53:
-            mult = 5
-        elif index <= 62:
-            mult = 6
-        elif index <= 71:
-            mult = 7
-        else:
-            mult = 8
-
-        for i in range(9):
-            row_indices.append(mult*9 + i)
-
-        return row_indices
-
-    def determineBox(self, index):
-
-        box_indices = []
-
-        for i in range(9):
-            if i <= 1 or i <= 4 or i <= 7:
-                box_indices.append(start_number)
-                start_number += 1
-            else:
-                box_indices.append(start_number)
-                start_number += 7
-
-            print(i)
 
     def InitUI(self):
         vbox = wx.BoxSizer(wx.VERTICAL)
@@ -142,6 +138,59 @@ class Solver(wx.Frame):
 
             dc.DrawLine(0, y, 792, y)
             y += 88
+
+# helper functions
+    def determineCol(self, index):
+        col_indices = []
+        start_number = index % 9
+
+        for i in range(9):
+            col_indices.append(start_number)
+            start_number += 9
+
+        return col_indices
+
+    def determineRow(self, index):
+        row_indices = []
+        mult = 0
+        if index >= 0 and index <= 8:
+            mult = 0
+        elif index <= 17:
+            mult = 1
+        elif index <= 26:
+            mult = 2
+        elif index <= 35:
+            mult = 3
+        elif index <= 44:
+            mult = 4
+        elif index <= 53:
+            mult = 5
+        elif index <= 62:
+            mult = 6
+        elif index <= 71:
+            mult = 7
+        else:
+            mult = 8
+
+        for i in range(9):
+            row_indices.append(mult*9 + i)
+
+        return row_indices
+
+    def determineBox(self, index):
+
+        box_indices = []
+
+        for i in range(9):
+            if i <= 1 or i <= 4 or i <= 7:
+                box_indices.append(start_number)
+                start_number += 1
+            else:
+                box_indices.append(start_number)
+                start_number += 7
+
+            print(i)
+
 
 
 app = wx.App()
