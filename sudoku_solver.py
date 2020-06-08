@@ -39,7 +39,8 @@ class Solver(wx.Frame):
                 print("MORE than one value in current square")
                 row_indices = self.determineRow(i)
                 print("ROW INDICES: " + str(row_indices))
-                # col_indices = self.determineCol(i)
+                col_indices = self.determineCol(i)
+                print("COL INDICES: " + str(col_indices))
 
                 # box_indices = self.determineBox(80)
                 # print(row_indices)
@@ -53,7 +54,7 @@ class Solver(wx.Frame):
 
                 for index in row_indices:
                     # print("index" + str(index))
-                    if len(squares[index]) == 1:
+                    if len(squares[index]) == 1 and index != i:
                         # remove that value from the current square's list
                         # this is a list
                         taken_value = str(squares[index][0])
@@ -67,14 +68,18 @@ class Solver(wx.Frame):
                         # except ValueError:
                         #     print("GGGGGGetting an error")
                         #     pass
-                        print("OLD square list: " + str(square))
-                        print("Removing taken value: " + taken_value)
-                        square = list(square)
-                        square.remove(taken_value)
-                        square = tuple(square)
-                        squares[i] = square
-                        # squares[i] = square
-                        print("NEW square list: " + str(square))
+                        try:
+                            print("OLD square list: " + str(square))
+                            print("Removing taken value: " + taken_value)
+                            square = list(square)
+                            square.remove(taken_value)
+                            square = tuple(square)
+                            squares[i] = square
+                            # squares[i] = square
+                            print("NEW square list: " + str(square))
+                        except ValueError:
+                            print("Error")
+                            pass
                     else:
                         print("No taken value to be done")
                         # for value in square:
@@ -87,11 +92,25 @@ class Solver(wx.Frame):
 
 
                         # square.remove(taken_value)
+                for index in col_indices:
+                    print("COLIndex: " + str(index))
+                    print("COL Value: " + str(squares[index]))
+                    # need to add that it's not the current one being tested
+                    if len(squares[index]) == 1 and index != i:
+                        taken_value = str(squares[index][0])
+
+                        try:
+                            print("COL OLD square list: " + str(square))
+                            print("COL Removing taken value: " + taken_value)
+                            square = list(square)
+                            square.remove(taken_value)
+                            square = tuple(square)
+                            squares[i] = square
+                            print("NEW square list: " + str(square))
+                        except ValueError:
+                            print("Error")
+                            pass
                 i+=1
-
-
-
-                
         j=1
         # for index in col_indices:
         #     if len(squares[index]) == 1:
