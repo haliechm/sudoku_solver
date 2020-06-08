@@ -139,9 +139,13 @@ class Solver(wx.Frame):
                                 pass
 
                     if len(square) == 1:
+                        # make it appear
+                        self.my_controls[i].SetForegroundColour(wx.RED)
+                        self.my_controls[i].SetValue(square[0])
                         print("Adding one to filled in")
                         filled_in += 1
                     i+=1
+                    filled_in = 81
 
 
 
