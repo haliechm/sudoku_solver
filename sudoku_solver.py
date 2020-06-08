@@ -41,6 +41,8 @@ class Solver(wx.Frame):
                 print("ROW INDICES: " + str(row_indices))
                 col_indices = self.determineCol(i)
                 print("COL INDICES: " + str(col_indices))
+                box_indices = self.determineBox(i)
+                print("BOX INDICES: " + str(box_indices))
 
                 # box_indices = self.determineBox(80)
                 # print(row_indices)
@@ -93,8 +95,8 @@ class Solver(wx.Frame):
 
                         # square.remove(taken_value)
                 for index in col_indices:
-                    print("COLIndex: " + str(index))
-                    print("COL Value: " + str(squares[index]))
+                    # print("COLIndex: " + str(index))
+                    # print("COL Value: " + str(squares[index]))
                     # need to add that it's not the current one being tested
                     if len(squares[index]) == 1 and index != i:
                         taken_value = str(squares[index][0])
@@ -110,6 +112,23 @@ class Solver(wx.Frame):
                         except ValueError:
                             print("Error")
                             pass
+
+                for index in box_indices:
+                    if len(squares[index]) == 1 and index != i:
+                        taken_value = str(squares[index][0])
+
+                        try:
+                            print("BOX OLD square list: " + str(square))
+                            print("BOX Removing taken value: " + taken_value)
+                            square = list(square)
+                            square.remove(taken_value)
+                            square = tuple(square)
+                            squares[i] = square
+                            print("NEW square list: " + str(square))
+                        except ValueError:
+                            print("Error")
+                            pass
+
                 i+=1
         j=1
         # for index in col_indices:
@@ -219,17 +238,44 @@ class Solver(wx.Frame):
 
     def determineBox(self, index):
 
+        mod9 = index % 9
+        start_number = -1
+
+        if mod9 <= 2:
+            if index <= 20:
+                start_number = 0
+            elif index <= 47:
+                start_number = 27
+            else:
+                start_number = 54
+        elif mod9 <= 5:
+            if index <= 23:
+                start_number = 3
+            elif index <= 50:
+                start_number = 30
+            else:
+                start_number = 57
+        elif mod9 <= 8:
+            if index <= 26:
+                start_number = 6
+            elif index <= 53:
+                start_number = 33
+            else:
+                start_number = 60
+
         box_indices = []
 
         for i in range(9):
-            if i <= 1 or i <= 4 or i <= 7:
+            if i != 2 and i != 5 and i != 8:
+                print("here")
                 box_indices.append(start_number)
                 start_number += 1
             else:
+                print("now here")
                 box_indices.append(start_number)
                 start_number += 7
 
-            print(i)
+        return box_indices
 
 
 
