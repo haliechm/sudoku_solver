@@ -12,28 +12,35 @@ class Solver(wx.Frame):
 
     def onClick(self, event):
 
-        possibilities = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
+        possibilities = ("1", "2", "3", "4", "5", "6", "7", "8", "9")
         squares = []
         for i in range(81):
             squares.append(possibilities)
         i=0
         for sq in self.my_controls:
             if(sq.GetValue() != ""):
-                squares[i] = [sq.GetValue()]
+                print("Not a blank square")
+                squares[i] = tuple(sq.GetValue())
+            else:
+                print("Blank square")
             i+=1
+
+        # above is working correctly
 
         i=0
         for square in squares:
             if len(square) == 1:
                 # go to next loop
-                print("YEP")
+                print("ONLY one value in current square")
                 i+=1
                 continue
 
             else:
+                print("MORE than one value in current square")
                 row_indices = self.determineRow(i)
-                col_indices = self.determineCol(i)
-                i+=1
+                print("ROW INDICES: " + str(row_indices))
+                # col_indices = self.determineCol(i)
+
                 # box_indices = self.determineBox(80)
                 # print(row_indices)
                 # print(col_indices)
@@ -53,14 +60,23 @@ class Solver(wx.Frame):
                         # print("Taken Value:" + taken_value)
                         # print("type of taken value: " + str(type(taken_value)))
 
-                        try:
-                            print("Removing taken value: " + taken_value)
-                            square.remove(taken_value)
-                            print("-----------" + str(taken_value))
-                        except ValueError:
-                            print("GGGGGGetting an error")
-                            pass
-
+                        # try:
+                        #     print("Removing taken value: " + taken_value)
+                        #     square.remove(taken_value)
+                        #     print("Getting here")
+                        # except ValueError:
+                        #     print("GGGGGGetting an error")
+                        #     pass
+                        print("OLD square list: " + str(square))
+                        print("Removing taken value: " + taken_value)
+                        square = list(square)
+                        square.remove(taken_value)
+                        square = tuple(square)
+                        squares[i] = square
+                        # squares[i] = square
+                        print("NEW square list: " + str(square))
+                    else:
+                        print("No taken value to be done")
                         # for value in square:
                         #     # print("------Value:" + value)
                         #     # print("type of value: " + str(type(value)))
@@ -71,6 +87,11 @@ class Solver(wx.Frame):
 
 
                         # square.remove(taken_value)
+                i+=1
+
+
+
+                
         j=1
         # for index in col_indices:
         #     if len(squares[index]) == 1:
