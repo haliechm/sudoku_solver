@@ -131,7 +131,7 @@ class Solver(wx.Frame):
 
         gs = wx.GridSizer(9, 9, 0, 0)
 
-        self.SetFont(wx.Font(28, wx.SWISS, wx.NORMAL, wx.NORMAL, False,'MS Shell Dlg 2'))
+        self.SetFont(wx.Font(78, wx.SWISS, wx.NORMAL, wx.NORMAL, False,'MS Shell Dlg 2'))
         for i in range(81):
             #gs.Add(wx.ComboBox(self, 15, "X", choices=["X", "1", "2", "3", "4", "5", "6", "7", "8", "9"], style = wx.CB_READONLY)
             text_control = wx.TextCtrl(self, id==1, value="", size=(88,88), style = wx.TE_CENTRE)
