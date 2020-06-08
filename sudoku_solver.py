@@ -32,11 +32,14 @@ class Solver(wx.Frame):
         print("Filled in: " + str(filled_in))
 
         # above is working correctly
-
-        while(filled_in < 81):
+        num_of_times_through = 0
+        while(num_of_times_through < 500):
             print("Filled in: " + str(filled_in))
+            print("----dddd----" + str(num_of_times_through))
+            num_of_times_through += 1
             i=0
             for square in squares:
+
                 if len(square) == 1:
                     # go to next loop
                     # print("ONLY one value in current square")
@@ -123,6 +126,8 @@ class Solver(wx.Frame):
                                 pass
 
                     for index in box_indices:
+                        if (len(square) == 1):
+                            break
                         if len(squares[index]) == 1 and index != i:
                             taken_value = str(squares[index][0])
 
@@ -138,14 +143,82 @@ class Solver(wx.Frame):
                                 print("Error")
                                 pass
 
+
+                    # testing row uniqueness
+                    for square_value in square:
+                        if len(square) == 1:
+                            break
+                        found_value = False
+                        for index in row_indices:
+                            if index != i:
+                                for opponent_value in squares[index]:
+                                    if opponent_value == square_value:
+                                        found_value = True
+
+                        if not found_value:
+                            print("FOUND UNIQUE ROW VALUE")
+                            print("UR OLD Square: " + str(square))
+                            # set that square to that value
+                            square = tuple(square_value)
+                            print("UR NEW square list: " + str(square))
+                            squares[i] = square
+                            break
+
+                    # testing col uniqueness
+                    for square_value in square:
+                        if len(square) == 1:
+                            break
+                        found_value = False
+                        for index in col_indices:
+                            if index != i:
+                                for opponent_value in squares[index]:
+                                    if opponent_value == square_value:
+                                        found_value = True
+
+                        if not found_value:
+                            print("FOUND UNIQUE COL VALUE")
+                            print("UC OLD Square: " + str(square))
+                            # set that square to that value
+                            square = tuple(square_value)
+                            print("NEW square list: " + str(square))
+                            squares[i] = square
+                            break
+
+                    # testing box uniqueness
+                    for square_value in square:
+                        if len(square) == 1:
+                            break
+                        found_value = False
+                        for index in box_indices:
+                            if index != i:
+                                for opponent_value in squares[index]:
+                                    if opponent_value == square_value:
+                                        found_value = True
+
+                        if not found_value:
+                            print("FOUND UNIQUE BOX VALUE")
+                            print("UB OLD Square: " + str(square))
+                            # set that square to that value
+                            square = tuple(square_value)
+                            print("NEW square list: " + str(square))
+                            squares[i] = square
+                            break
+
+
+
                     if len(square) == 1:
                         # make it appear
                         self.my_controls[i].SetForegroundColour(wx.RED)
                         self.my_controls[i].SetValue(square[0])
                         print("Adding one to filled in")
                         filled_in += 1
+
+
                     i+=1
-                    filled_in = 81
+
+                    # filled_in += 1
+
+
 
 
 
