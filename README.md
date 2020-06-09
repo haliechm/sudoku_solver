@@ -1,6 +1,6 @@
 Sudoku solver
 ---------------------------
-Made using python (pythonwx for gui)
+Made using python (wxPython for gui)
 
 **WIP**
 
@@ -15,3 +15,16 @@ To View Project
 
 Screenshots
 ---------------------------
+
+**Sudoku Puzzle**
+Difficult level puzzle from sudoku.com
+
+![](Images/SudokuHard.png)
+
+**Entered puzzle numbers into GUI**
+
+![](Images/GUIBlank.png)
+
+**Solved puzzle**
+
+![](Images/GUISolved.png)
