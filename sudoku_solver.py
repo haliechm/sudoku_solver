@@ -33,7 +33,7 @@ class Solver(wx.Frame):
 
         # above is working correctly
         num_of_times_through = 0
-        while(num_of_times_through < 500):
+        while(num_of_times_through < 10 and filled_in < 81):
             print("Filled in: " + str(filled_in))
             print("----dddd----" + str(num_of_times_through))
             num_of_times_through += 1
@@ -235,6 +235,26 @@ class Solver(wx.Frame):
         #solve puzzle here
         #then reveal in red the answers
 
+    def testValidity(self, event):
+
+        # print(type(event.GetString()))
+        # print("ID: " + str(event.GetId()))
+
+        try:
+            index_entered = event.GetId()
+            value_entered = int(self.my_controls[index_entered].GetValue())
+            if value_entered <= 0 or value_entered >= 10:
+                print("Not allowed")
+                # self.text_control.SetValue("8")
+                self.my_controls[index_entered].SetValue("")
+        except ValueError:
+            # make it turn red here
+            # self.text_control.SetValue("")
+            self.my_controls[index_entered].SetValue("")
+            print("Not allowed")
+
+        # go through here and see if not allowed based on rules of row, col, and box
+
 
     def InitUI(self):
         vbox = wx.BoxSizer(wx.VERTICAL)
@@ -244,11 +264,15 @@ class Solver(wx.Frame):
         self.SetFont(wx.Font(78, wx.SWISS, wx.NORMAL, wx.NORMAL, False,'MS Shell Dlg 2'))
         for i in range(81):
             #gs.Add(wx.ComboBox(self, 15, "X", choices=["X", "1", "2", "3", "4", "5", "6", "7", "8", "9"], style = wx.CB_READONLY)
-            text_control = wx.TextCtrl(self, id==1, value="", size=(88,88), style = wx.TE_CENTRE)
+            self.text_control = wx.TextCtrl(self, id==i, value="", size=(88,88), style = wx.TE_CENTRE)
+            self.text_control.SetId(i)
+            print("----ffff" + str(self.text_control.GetId()))
+            self.text_control.SetMaxLength(1)
+            self.text_control.Bind(wx.EVT_TEXT, self.testValidity, self.text_control, id=i)
 
-            self.my_controls.append(text_control)
+            self.my_controls.append(self.text_control)
             #gs.Add(wx.TextCtrl(self, id==1, value="", size=(88,88), style = wx.TE_CENTRE))
-            gs.Add(text_control)
+            gs.Add(self.text_control)
 
         self.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL, False,'MS Shell Dlg 2'))
         butt = wx.Button(self, wx.ID_ANY, "Click to Solve Puzzle", (320, 730))
