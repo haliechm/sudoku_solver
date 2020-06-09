@@ -243,11 +243,35 @@ class Solver(wx.Frame):
 
         # print(type(event.GetString()))
         # print("ID: " + str(event.GetId()))
+
+
+        index_entered = -1
+        value_entered = -1
+
         if self.my_controls[event.GetId()].GetValue() == "":
-            pass
+            self.my_controls[event.GetId()].SetBackgroundColour((255, 255, 255))
+            for num in range(9):
+                current_num = num + 1
+                current_match_list = []
+
+                row_indices = self.determineRow(event.GetId())
+                col_indices = self.determineCol(event.GetId())
+                box_indices = self.determineBox(event.GetId())
+
+                for index in row_indices:
+                    if str(current_num) == self.my_controls[index].GetValue():
+                        current_match_list.append(index)
+
+                if len(current_match_list) == 1:
+                    self.my_controls[current_match_list[0]].SetBackgroundColour((255, 255, 255))
+
+
+
+            # need to turn back
         else:
             try:
                 index_entered = event.GetId()
+                # print("index entered: " + str(event.GetId()))
                 value_entered = int(self.my_controls[index_entered].GetValue())
                 if value_entered <= 0 or value_entered >= 10:
                     # print("Not allowed")
@@ -260,7 +284,74 @@ class Solver(wx.Frame):
                     self.my_controls[index_entered].SetValue("")
                     # print("Not allowed")
 
+        if value_entered >= 1 and value_entered <= 9:
         # go through here and see if not allowed based on rules of row, col, and box
+        # row:
+            row_indices = self.determineRow(index_entered)
+            list_of_matching = []
+            for index in row_indices:
+                if self.my_controls[index].GetValue() == str(value_entered):
+                    list_of_matching.append(index)
+            for index in list_of_matching:
+                if len(list_of_matching) > 1:
+                    self.my_controls[index].SetBackgroundColour((182, 108, 121))
+                else:
+                    self.my_controls[index].SetBackgroundColour((255, 255, 255))
+
+
+
+
+            # num_the_same = 0
+            # for index in row_indices:
+            #     if (self.my_controls[index].GetValue() == str(value_entered)):
+            #         num_the_same += 1
+            #         if num_the_same > 1:
+            #             self.my_controls[event.GetId()].SetBackgroundColour((182, 108, 121))
+            #             print("yep that's a no go")
+            #             break
+            #         else:
+            #             # need to determine quadrant for this
+            #             self.my_controls[event.GetId()].SetBackgroundColour((255, 255, 255))
+
+        # col:
+
+            # col_indices = self.determineCol(index_entered)
+            # num_the_same = 0
+            # for index in col_indices:
+            #     if (self.my_controls[index].GetValue() == str(value_entered)):
+            #         num_the_same += 1
+            #         if num_the_same > 1:
+            #             self.my_controls[event.GetId()].SetBackgroundColour((182, 108, 121))
+            #             print("yep that's a no go")
+            #             break
+            #         else:
+            #             # need to determine quadrant for this
+            #             self.my_controls[event.GetId()].SetBackgroundColour((255, 255, 255))
+
+        # box:
+            # box_indices = self.determineBox(index_entered)
+            # num_the_same = 0
+            # for index in box_indices:
+            #     if (self.my_controls[index].GetValue() == str(value_entered)):
+            #         num_the_same += 1
+            #         if num_the_same > 1:
+            #             self.my_controls[event.GetId()].SetBackgroundColour((182, 108, 121))
+            #             print("yep that's a no go")
+            #             break
+            #         else:
+            #             # need to determine quadrant for this
+            #             self.my_controls[event.GetId()].SetBackgroundColour((255, 255, 255))
+        # else:
+        #     self.my_controls[event.GetId()].SetBackgroundColour((255, 255, 255))
+
+            # how to turn back white upon exit
+
+            # need to test to make sure it's not referring to current box
+
+
+        # col:
+
+        # box:
 
 
     def InitUI(self):
@@ -275,7 +366,7 @@ class Solver(wx.Frame):
             # self.text_control.SetForegroundColour(wx.BLACK)
 
             if (self.getQuadrant(i) == 0 or self.getQuadrant(i) == 6 or self.getQuadrant(i) == 30 or self.getQuadrant(i) == 54 or self.getQuadrant(i) == 60):
-                print("I: " + str(i))
+                # print("I: " + str(i))
                 pass
             else:
                 self.text_control.SetBackgroundColour((211, 232, 245))
