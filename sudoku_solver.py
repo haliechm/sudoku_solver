@@ -3,7 +3,7 @@ import wx
 class Solver(wx.Frame):
     def __init__(self, parent, title):
         super(Solver, self).__init__(parent, title=title, size=(792, 820))
-
+        self.SetSizeHints(792,820,792,820)
         self.my_controls = []
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.InitUI()
@@ -290,10 +290,10 @@ class Solver(wx.Frame):
             gs.Add(self.text_control)
 
         self.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL, False,'MS Shell Dlg 2'))
-        butt1 = wx.Button(self, wx.ID_ANY, "Clear Puzzle", (303 ,760))
-        butt1.Bind(wx.EVT_BUTTON, self.clearPuzzle)
-        butt = wx.Button(self, wx.ID_ANY, "Solve Puzzle", (398, 760))
-        butt.Bind(wx.EVT_BUTTON, self.onClick)
+        butt0 = wx.Button(self, wx.ID_ANY, "Clear Puzzle", (303 ,772))
+        butt0.Bind(wx.EVT_BUTTON, self.clearPuzzle)
+        butt1 = wx.Button(self, wx.ID_ANY, "Solve Puzzle", (398, 772))
+        butt1.Bind(wx.EVT_BUTTON, self.onClick)
 
 
 
