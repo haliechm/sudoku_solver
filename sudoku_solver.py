@@ -10,6 +10,10 @@ class Solver(wx.Frame):
         self.Centre()
         self.Show()
 
+    def clearPuzzle(self, event):
+        for i in range(81):
+            self.my_controls[i].SetValue("")
+
     def onClick(self, event):
 
 
@@ -239,19 +243,22 @@ class Solver(wx.Frame):
 
         # print(type(event.GetString()))
         # print("ID: " + str(event.GetId()))
-
-        try:
-            index_entered = event.GetId()
-            value_entered = int(self.my_controls[index_entered].GetValue())
-            if value_entered <= 0 or value_entered >= 10:
-                print("Not allowed")
-                # self.text_control.SetValue("8")
-                self.my_controls[index_entered].SetValue("")
-        except ValueError:
-            # make it turn red here
-            # self.text_control.SetValue("")
-            self.my_controls[index_entered].SetValue("")
-            print("Not allowed")
+        if self.my_controls[event.GetId()].GetValue() == "":
+            pass
+        else:
+            try:
+                index_entered = event.GetId()
+                value_entered = int(self.my_controls[index_entered].GetValue())
+                if value_entered <= 0 or value_entered >= 10:
+                    # print("Not allowed")
+                    # self.text_control.SetValue("8")
+                    self.my_controls[index_entered].SetValue("")
+            except ValueError:
+                    # make it turn red here
+                    # self.text_control.SetValue("")
+                    # print("Getting here")
+                    self.my_controls[index_entered].SetValue("")
+                    # print("Not allowed")
 
         # go through here and see if not allowed based on rules of row, col, and box
 
@@ -265,8 +272,16 @@ class Solver(wx.Frame):
         for i in range(81):
             #gs.Add(wx.ComboBox(self, 15, "X", choices=["X", "1", "2", "3", "4", "5", "6", "7", "8", "9"], style = wx.CB_READONLY)
             self.text_control = wx.TextCtrl(self, id==i, value="", size=(88,88), style = wx.TE_CENTRE)
+            # self.text_control.SetForegroundColour(wx.BLACK)
+
+            if (self.getQuadrant(i) == 0 or self.getQuadrant(i) == 6 or self.getQuadrant(i) == 30 or self.getQuadrant(i) == 54 or self.getQuadrant(i) == 60):
+                print("I: " + str(i))
+                pass
+            else:
+                self.text_control.SetBackgroundColour((211, 232, 245))
+
             self.text_control.SetId(i)
-            print("----ffff" + str(self.text_control.GetId()))
+            # print("----ffff" + str(self.text_control.GetId()))
             self.text_control.SetMaxLength(1)
             self.text_control.Bind(wx.EVT_TEXT, self.testValidity, self.text_control, id=i)
 
@@ -275,8 +290,11 @@ class Solver(wx.Frame):
             gs.Add(self.text_control)
 
         self.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL, False,'MS Shell Dlg 2'))
-        butt = wx.Button(self, wx.ID_ANY, "Click to Solve Puzzle", (320, 730))
+        butt1 = wx.Button(self, wx.ID_ANY, "Clear Puzzle", (303 ,760))
+        butt1.Bind(wx.EVT_BUTTON, self.clearPuzzle)
+        butt = wx.Button(self, wx.ID_ANY, "Solve Puzzle", (398, 760))
         butt.Bind(wx.EVT_BUTTON, self.onClick)
+
 
 
 
@@ -293,10 +311,10 @@ class Solver(wx.Frame):
         x=0
         for i in range(10):
 
-            if i==3 or i==6:
-                dc.SetPen(wx.Pen(wx.GREEN, width=4))
-            else:
-                dc.SetPen(wx.Pen(wx.BLACK, 4))
+            # if i==3 or i==6:
+            #     dc.SetPen(wx.Pen(wx.GREEN, width=4))
+            # else:
+            #     dc.SetPen(wx.Pen(wx.BLACK, 4))
 
             dc.DrawLine(x, 0, x, 792)
             x += 88
@@ -305,10 +323,10 @@ class Solver(wx.Frame):
         y=0
         for j in range(10):
 
-            if j==3 or j==6:
-                dc.SetPen(wx.Pen(wx.GREEN, 4))
-            else:
-                dc.SetPen(wx.Pen(wx.BLACK, 4))
+            # if j==3 or j==6:
+            #     dc.SetPen(wx.Pen(wx.GREEN, 4))
+            # else:
+            #     dc.SetPen(wx.Pen(wx.BLACK, 4))
 
             dc.DrawLine(0, y, 792, y)
             y += 88
@@ -393,6 +411,19 @@ class Solver(wx.Frame):
                 start_number += 7
 
         return box_indices
+
+    def getQuadrant(self, index):
+
+        indices = self.determineBox(index)
+        start_number = indices[0]
+
+        return start_number
+
+
+
+
+
+
 
 
 
