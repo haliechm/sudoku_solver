@@ -249,21 +249,35 @@ class Solver(wx.Frame):
         value_entered = -1
 
         if self.my_controls[event.GetId()].GetValue() == "":
-            self.my_controls[event.GetId()].SetBackgroundColour((255, 255, 255))
+            # do blue or white here
+            print("BLANK VALUE")
+            if self.getQuadrantColor(event.GetId()) == "Blue":
+                print("AYYYYE")
+                self.my_controls[event.GetId()].SetBackgroundColour((211, 232, 245))
+            else:
+                print("NAY")
+                self.my_controls[event.GetId()].SetBackgroundColour((255, 255, 255))
+
             for num in range(9):
                 current_num = num + 1
                 current_match_list = []
 
-                row_indices = self.determineRow(event.GetId())
-                col_indices = self.determineCol(event.GetId())
-                box_indices = self.determineBox(event.GetId())
+                # row_indices = self.determineRow(event.GetId())
+                # col_indices = self.determineCol(event.GetId())
+                # box_indices = self.determineBox(event.GetId())
 
                 for index in row_indices:
                     if str(current_num) == self.my_controls[index].GetValue():
                         current_match_list.append(index)
+                        print("Current match list: " + current_match_list)
 
                 if len(current_match_list) == 1:
-                    self.my_controls[current_match_list[0]].SetBackgroundColour((255, 255, 255))
+                    # do blue or white here
+                    if self.getQuadrantColor(current_match_list[0]) == "Blue":
+                        self.my_controls[current_match_list[0]].SetBackgroundColour((211, 232, 245))
+                    else:
+                        self.my_controls[current_match_list[0]].SetBackgroundColour((255, 255, 255))
+
 
 
 
@@ -289,14 +303,66 @@ class Solver(wx.Frame):
         # row:
             row_indices = self.determineRow(index_entered)
             list_of_matching = []
+
+            row_dup = False
             for index in row_indices:
                 if self.my_controls[index].GetValue() == str(value_entered):
+                    print("1 There's a match")
                     list_of_matching.append(index)
             for index in list_of_matching:
                 if len(list_of_matching) > 1:
                     self.my_controls[index].SetBackgroundColour((182, 108, 121))
+                    print("RED")
+                    row_dup = True
                 else:
-                    self.my_controls[index].SetBackgroundColour((255, 255, 255))
+                    if self.getQuadrantColor(index) == "Blue":
+                        print("1 Turning blue")
+                        self.my_controls[index].SetBackgroundColour((211, 232, 245))
+                    else:
+                        self.my_controls[index].SetBackgroundColour((255, 255, 255))
+                        print("1 Turning white")
+
+            # col:
+            col_indices = self.determineCol(index_entered)
+            list_of_matching = []
+
+            col_dup = False
+            for index in col_indices:
+                if self.my_controls[index].GetValue() == str(value_entered):
+                    list_of_matching.append(index)
+                    print("2 There's a match")
+            for index in list_of_matching:
+                if len(list_of_matching) > 1:
+                    self.my_controls[index].SetBackgroundColour((182, 108, 121))
+                    print("2 RED")
+                    col_dup = True
+                else:
+                    if self.getQuadrantColor(index) == "Blue":
+                        self.my_controls[index].SetBackgroundColour((211, 232, 245))
+                        print("2 Turning blue")
+                    else:
+                        self.my_controls[index].SetBackgroundColour((255, 255, 255))
+                        print("2 Turning white")
+
+
+            # box:
+            box_indices = self.determineBox(index_entered)
+            list_of_matching = []
+            for index in box_indices:
+                if self.my_controls[index].GetValue() == str(value_entered):
+                    list_of_matching.append(index)
+                    print("3 There's a match")
+            for index in list_of_matching:
+                if len(list_of_matching) > 1:
+                    self.my_controls[index].SetBackgroundColour((182, 108, 121))
+                    print("3 RED")
+                else:
+                    if self.getQuadrantColor(index) == "Blue":
+                        self.my_controls[index].SetBackgroundColour((211, 232, 245))
+                        print("3 Turning blue")
+                    else:
+                        self.my_controls[index].SetBackgroundColour((255, 255, 255))
+                        print("3 Turning white")
 
 
 
@@ -509,6 +575,13 @@ class Solver(wx.Frame):
         start_number = indices[0]
 
         return start_number
+
+    def getQuadrantColor(self, index):
+        start_number = self.getQuadrant(index)
+        if self.getQuadrant(index) == 0 or self.getQuadrant(index) == 6 or self.getQuadrant(index) == 30 or self.getQuadrant(index) == 54 or self.getQuadrant(index) == 60:
+            return "White"
+        else:
+            return "Blue"
 
 
 
