@@ -94,6 +94,24 @@ class Solver(wx.Frame):
                 break
         return square
 
+# https://www.paulspages.co.uk/sudoku/howtosolve/
+    def numberClaiming(self, col_indices, row_indices, box_indices, squares, square, i):
+        pass
+        # go through and see if row or col in a box 'claims' a number
+        # When a candidate number only appears in one row or column of a box,
+        # the box 'claims' that number within the entire row or column.
+
+    def checkForPairs(self, indices, squares, square, i):
+        pass
+        # When two squares in the same area (row, column or box) have identical two-number candidate lists,
+        # you can remove both numbers from other candidate lists in that area.
+
+    def checkForTriplets(self, indices, squares, square, i):
+        pass
+        # Three squares in an area (row, column or box) form a triple when:
+        # None of them has more than three candidates.
+        # Their candidate lists are all full or sub sets of the same three-candidate list (explained below!).
+        # You can remove numbers that appear in the triple from other candidate lists in the same area.
 
     # function called when "Solve Puzzle" button is clicked
     # solves the puzzle and puts answers in red
@@ -142,6 +160,10 @@ class Solver(wx.Frame):
                     square = self.testUniqueness(col_indices, squares, square, i)
                     square = self.testUniqueness(box_indices, squares, square, i)
 
+                    squares = self.numberClaiming(col_indices, row_indices, box_indices, squares, square, i)
+                    squares = self.checkForPairs(indices, squares, square, i)
+                    squares = self.checkForTriplets(indices, squares, square, i)
+
                     # iff the # of possible values in current square is one, then set that square
                     if len(square) == 1:
                         # answers are in red
@@ -150,6 +172,14 @@ class Solver(wx.Frame):
                         filled_in += 1
 
                     i+=1
+
+                print("----------------------------------------------------\n")
+                for j in range(81):
+                    print(str(j) +") POSSIBILITIES: " + str(squares[j]))
+                    if j % 9 == 2 or j % 9 == 5 or j % 9 == 8:
+                        print("!!!!!!!!!!")
+
+                # if get here and still not work then try to brute force it ?
 
 
 
