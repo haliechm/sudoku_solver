@@ -1,5 +1,11 @@
 import wx
 
+
+# need to make puzzle solver work for more advanced puzzles
+# need to fix code style/add comments
+# make sure default input box row actually works
+# update README
+
 class Solver(wx.Frame):
     def __init__(self, parent, title):
         super(Solver, self).__init__(parent, title=title, size=(792, 820))
@@ -13,6 +19,7 @@ class Solver(wx.Frame):
     def clearPuzzle(self, event):
         for i in range(81):
             self.my_controls[i].SetValue("")
+            self.my_controls[i].SetForegroundColour(wx.BLACK)
 
     def importPuzzle(self, event):
         # Create text input
@@ -36,6 +43,82 @@ class Solver(wx.Frame):
                 self.my_controls[i].SetValue(char)
             self.my_controls[i].SetForegroundColour(wx.BLACK)
             i += 1
+
+    def checkRulesAndEliminate(self, indices, squares, square, i):
+
+
+        for index in indices:
+            # print("index" + str(index))
+            if len(squares[index]) == 1 and index != i:
+                # remove that value from the current square's list
+                # this is a list
+                taken_value = str(squares[index][0])
+                # print("Taken Value:" + taken_value)
+                # print("type of taken value: " + str(type(taken_value)))
+
+                # try:
+                #     print("Removing taken value: " + taken_value)
+                #     square.remove(taken_value)
+                #     print("Getting here")
+                # except ValueError:
+                #     print("GGGGGGetting an error")
+                #     pass
+                try:
+                    print("OLD square list: " + str(square))
+                    print("Removing taken value: " + taken_value)
+                    square = list(square)
+                    square.remove(taken_value)
+                    square = tuple(square)
+                    squares[i] = square
+                    # squares[i] = square
+                    print("NEW square list: " + str(square))
+
+                except ValueError:
+                    # print("Error")
+                    pass
+        return square
+
+    def testUniqueness(self, indices, squares, square, i):
+        for square_value in square:
+            if len(square) == 1:
+                break
+            found_value = False
+            for index in indices:
+                print("----------------------------------INDEX:" + str(index))
+                if index != i:
+                    for opponent_value in squares[index]:
+                        if opponent_value == square_value:
+                            found_value = True
+
+            if not found_value:
+                    # print("FOUND UNIQUE ROW VALUE")
+                    # print("UR OLD Square: " + str(square))
+                    # set that square to that value
+                square = tuple(square_value)
+                    # print("UR NEW square list: " + str(square))
+                squares[i] = square
+                break
+        return square
+
+
+            # for square_value in square:
+            #     if len(square) == 1:
+            #         break
+            #     found_value = False
+            #     for index in row_indices:
+            #         if index != i:
+            #             for opponent_value in squares[index]:
+            #                 if opponent_value == square_value:
+            #                     found_value = True
+            #
+            #     if not found_value:
+            #         print("FOUND UNIQUE ROW VALUE")
+            #         print("UR OLD Square: " + str(square))
+            #         # set that square to that value
+            #         square = tuple(square_value)
+            #         print("UR NEW square list: " + str(square))
+            #         squares[i] = square
+            #         break
 
 
     def onClick(self, event):
@@ -90,135 +173,142 @@ class Solver(wx.Frame):
                     # square contains list of possibilities for current squares
                     # go through row indices and if any are single then get rid of that value from current squares
 
-                    for index in row_indices:
-                        # print("index" + str(index))
-                        if len(squares[index]) == 1 and index != i:
-                            # remove that value from the current square's list
-                            # this is a list
-                            taken_value = str(squares[index][0])
-                            # print("Taken Value:" + taken_value)
-                            # print("type of taken value: " + str(type(taken_value)))
+                    # for index in row_indices:
+                    #     # print("index" + str(index))
+                    #     if len(squares[index]) == 1 and index != i:
+                    #         # remove that value from the current square's list
+                    #         # this is a list
+                    #         taken_value = str(squares[index][0])
+                    #         # print("Taken Value:" + taken_value)
+                    #         # print("type of taken value: " + str(type(taken_value)))
+                    #
+                    #         # try:
+                    #         #     print("Removing taken value: " + taken_value)
+                    #         #     square.remove(taken_value)
+                    #         #     print("Getting here")
+                    #         # except ValueError:
+                    #         #     print("GGGGGGetting an error")
+                    #         #     pass
+                    #         try:
+                    #             # print("OLD square list: " + str(square))
+                    #             # print("Removing taken value: " + taken_value)
+                    #             square = list(square)
+                    #             square.remove(taken_value)
+                    #             square = tuple(square)
+                    #             squares[i] = square
+                    #             # squares[i] = square
+                    #             # print("NEW square list: " + str(square))
+                    #         except ValueError:
+                    #             # print("Error")
+                    #             pass
+                    square = self.checkRulesAndEliminate(row_indices, squares, square, i)
+                    square = self.checkRulesAndEliminate(col_indices, squares, square, i)
+                    square = self.checkRulesAndEliminate(box_indices, squares, square, i)
 
-                            # try:
-                            #     print("Removing taken value: " + taken_value)
-                            #     square.remove(taken_value)
-                            #     print("Getting here")
-                            # except ValueError:
-                            #     print("GGGGGGetting an error")
-                            #     pass
-                            try:
-                                # print("OLD square list: " + str(square))
-                                # print("Removing taken value: " + taken_value)
-                                square = list(square)
-                                square.remove(taken_value)
-                                square = tuple(square)
-                                squares[i] = square
-                                # squares[i] = square
-                                # print("NEW square list: " + str(square))
-                            except ValueError:
-                                # print("Error")
-                                pass
+                    square = self.testUniqueness(row_indices, squares, square, i)
+                    square = self.testUniqueness(col_indices, squares, square, i)
+                    square = self.testUniqueness(box_indices, squares, square, i)
 
 
 
                                 # square.remove(taken_value)
-                    for index in col_indices:
-                        # print("COLIndex: " + str(index))
-                        # print("COL Value: " + str(squares[index]))
-                        # need to add that it's not the current one being tested
-                        if len(squares[index]) == 1 and index != i:
-                            taken_value = str(squares[index][0])
-
-                            try:
-                                # print("COL OLD square list: " + str(square))
-                                # print("COL Removing taken value: " + taken_value)
-                                square = list(square)
-                                square.remove(taken_value)
-                                square = tuple(square)
-                                squares[i] = square
-                                # print("NEW square list: " + str(square))
-                            except ValueError:
-                                print("Error")
-                                pass
-
-                    for index in box_indices:
-                        if (len(square) == 1):
-                            break
-                        if len(squares[index]) == 1 and index != i:
-                            taken_value = str(squares[index][0])
-
-                            try:
-                                print("BOX OLD square list: " + str(square))
-                                print("BOX Removing taken value: " + taken_value)
-                                square = list(square)
-                                square.remove(taken_value)
-                                square = tuple(square)
-                                squares[i] = square
-                                print("NEW square list: " + str(square))
-                            except ValueError:
-                                print("Error")
-                                pass
+                    # for index in col_indices:
+                    #     # print("COLIndex: " + str(index))
+                    #     # print("COL Value: " + str(squares[index]))
+                    #     # need to add that it's not the current one being tested
+                    #     if len(squares[index]) == 1 and index != i:
+                    #         taken_value = str(squares[index][0])
+                    #
+                    #         try:
+                    #             print("COL OLD square list: " + str(square))
+                    #             print("COL Removing taken value: " + taken_value)
+                    #             square = list(square)
+                    #             square.remove(taken_value)
+                    #             square = tuple(square)
+                    #             squares[i] = square
+                    #             print("NEW square list: " + str(square))
+                    #         except ValueError:
+                    #             print("Error")
+                    #             pass
+                    #
+                    # for index in box_indices:
+                    #     if (len(square) == 1):
+                    #         break
+                    #     if len(squares[index]) == 1 and index != i:
+                    #         taken_value = str(squares[index][0])
+                    #
+                    #         try:
+                    #             print("BOX OLD square list: " + str(square))
+                    #             print("BOX Removing taken value: " + taken_value)
+                    #             square = list(square)
+                    #             square.remove(taken_value)
+                    #             square = tuple(square)
+                    #             squares[i] = square
+                    #             print("NEW square list: " + str(square))
+                    #         except ValueError:
+                    #             print("Error")
+                    #             pass
 
 
                     # testing row uniqueness
-                    for square_value in square:
-                        if len(square) == 1:
-                            break
-                        found_value = False
-                        for index in row_indices:
-                            if index != i:
-                                for opponent_value in squares[index]:
-                                    if opponent_value == square_value:
-                                        found_value = True
-
-                        if not found_value:
-                            print("FOUND UNIQUE ROW VALUE")
-                            print("UR OLD Square: " + str(square))
-                            # set that square to that value
-                            square = tuple(square_value)
-                            print("UR NEW square list: " + str(square))
-                            squares[i] = square
-                            break
-
-                    # testing col uniqueness
-                    for square_value in square:
-                        if len(square) == 1:
-                            break
-                        found_value = False
-                        for index in col_indices:
-                            if index != i:
-                                for opponent_value in squares[index]:
-                                    if opponent_value == square_value:
-                                        found_value = True
-
-                        if not found_value:
-                            print("FOUND UNIQUE COL VALUE")
-                            print("UC OLD Square: " + str(square))
-                            # set that square to that value
-                            square = tuple(square_value)
-                            print("NEW square list: " + str(square))
-                            squares[i] = square
-                            break
-
-                    # testing box uniqueness
-                    for square_value in square:
-                        if len(square) == 1:
-                            break
-                        found_value = False
-                        for index in box_indices:
-                            if index != i:
-                                for opponent_value in squares[index]:
-                                    if opponent_value == square_value:
-                                        found_value = True
-
-                        if not found_value:
-                            print("FOUND UNIQUE BOX VALUE")
-                            print("UB OLD Square: " + str(square))
-                            # set that square to that value
-                            square = tuple(square_value)
-                            print("NEW square list: " + str(square))
-                            squares[i] = square
-                            break
+                    # for square_value in square:
+                    #     if len(square) == 1:
+                    #         break
+                    #     found_value = False
+                    #     for index in row_indices:
+                    #         if index != i:
+                    #             for opponent_value in squares[index]:
+                    #                 if opponent_value == square_value:
+                    #                     found_value = True
+                    #
+                    #     if not found_value:
+                    #         print("FOUND UNIQUE ROW VALUE")
+                    #         print("UR OLD Square: " + str(square))
+                    #         # set that square to that value
+                    #         square = tuple(square_value)
+                    #         print("UR NEW square list: " + str(square))
+                    #         squares[i] = square
+                    #         break
+                    #
+                    # # testing col uniqueness
+                    # for square_value in square:
+                    #     if len(square) == 1:
+                    #         break
+                    #     found_value = False
+                    #     for index in col_indices:
+                    #         if index != i:
+                    #             for opponent_value in squares[index]:
+                    #                 if opponent_value == square_value:
+                    #                     found_value = True
+                    #
+                    #     if not found_value:
+                    #         print("FOUND UNIQUE COL VALUE")
+                    #         print("UC OLD Square: " + str(square))
+                    #         # set that square to that value
+                    #         square = tuple(square_value)
+                    #         print("NEW square list: " + str(square))
+                    #         squares[i] = square
+                    #         break
+                    #
+                    # # testing box uniqueness
+                    # for square_value in square:
+                    #     if len(square) == 1:
+                    #         break
+                    #     found_value = False
+                    #     for index in box_indices:
+                    #         if index != i:
+                    #             for opponent_value in squares[index]:
+                    #                 if opponent_value == square_value:
+                    #                     found_value = True
+                    #
+                    #     if not found_value:
+                    #         print("FOUND UNIQUE BOX VALUE")
+                    #         print("UB OLD Square: " + str(square))
+                    #         # set that square to that value
+                    #         square = tuple(square_value)
+                    #         print("NEW square list: " + str(square))
+                    #         squares[i] = square
+                    #         break
 
 
 
@@ -226,7 +316,8 @@ class Solver(wx.Frame):
                         # make it appear
                         self.my_controls[i].SetForegroundColour(wx.RED)
                         self.my_controls[i].SetValue(square[0])
-                        print("Adding one to filled in")
+                        # print("Adding one to filled in")
+                        # print("------------------------------GOT IT" + str(square[0]))
                         filled_in += 1
 
 
@@ -621,13 +712,6 @@ class Solver(wx.Frame):
             return "White"
         else:
             return "Blue"
-
-
-
-
-
-
-
 
 
 app = wx.App()
