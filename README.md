@@ -4,9 +4,10 @@ Made using python (wxPython for gui)
 
 **WIP**
 
-Currently works on most puzzles (easy, medium, & difficult)
+Currently works on many puzzles (easy, medium, & difficult)
+Use https://qqwing.com/generate.html to generate puzzles in the correct format for using the "Input Puzzle" button. (as of right now, solver only works on his simple/easy puzzles)
 
-Note that some puzzles do not work (currently working on making the solver better)
+Note that some puzzles do not work (currently working on making the solver more advanced)
 
 
 To View Project
@@ -30,8 +31,8 @@ Difficult level puzzle from sudoku.com
 
 **Entered puzzle numbers into GUI**
 
-![](Images/GUIBlank.png)
+![](Images/SHardBlank.png)
 
 **Solved puzzle**
 
-![](Images/GUISolved.png)
+![](Images/SHardSolved.png)

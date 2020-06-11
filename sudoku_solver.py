@@ -212,11 +212,11 @@ class Solver(wx.Frame):
 
         # makes the buttons along bottom of window
         self.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL, False,'MS Shell Dlg 2'))
-        butt0 = wx.Button(self, wx.ID_ANY, "Clear Puzzle", (303 ,772))
+        butt0 = wx.Button(self, wx.ID_ANY, "Clear Puzzle", (258 ,772))
         butt0.Bind(wx.EVT_BUTTON, self.clearPuzzle)
-        butt1 = wx.Button(self, wx.ID_ANY, "Solve Puzzle", (398, 772))
+        butt1 = wx.Button(self, wx.ID_ANY, "Solve Puzzle", (353, 772))
         butt1.Bind(wx.EVT_BUTTON, self.onClick)
-        butt2 = wx.Button(self, wx.ID_ANY, "Import puzzle", (493, 772))
+        butt2 = wx.Button(self, wx.ID_ANY, "Import puzzle", (448, 772))
         butt2.Bind(wx.EVT_BUTTON, self.importPuzzle)
 
 
