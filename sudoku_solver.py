@@ -1,579 +1,216 @@
+# using wxpython for GUI
 import wx
 
 
 # need to make puzzle solver work for more advanced puzzles
 # need to fix code style/add comments
-# make sure default input box row actually works
+# make sure default input box row actually works: doesn't work: ....1.82...46.........3..4.7682.5...1.....7...4....2..2.7....1.8.3.........3...5.
 # update README
 
+# solves sudoku puzzles
+# works on many puzzles (on sudoku.com solves most easy, med, hard puzzles but not all puzzles (yet))
 class Solver(wx.Frame):
     def __init__(self, parent, title):
         super(Solver, self).__init__(parent, title=title, size=(792, 820))
+        # max and min window size set to the same dimensions
         self.SetSizeHints(792,820,792,820)
         self.my_controls = []
-        self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.InitUI()
         self.Centre()
         self.Show()
 
+    # resets all squares to be blank
     def clearPuzzle(self, event):
         for i in range(81):
             self.my_controls[i].SetValue("")
             self.my_controls[i].SetForegroundColour(wx.BLACK)
 
+    # can input numbers into window rather directly into squares
+    # use '.' for blank squares (must input 81 characters)
+    # use https://qqwing.com/generate.html on simple/easy to get puzzles in this format
     def importPuzzle(self, event):
-        # Create text input
-
         input_box = wx.TextEntryDialog(self, "Enter 81 values to enter into puzzle (use '.' for blank squares)",'Puzzle Input')
-        input_box.SetValue("....1.82...46.........3..4.7682.5...1.....7...4....2..2.7....1.8.3.........3...5.")
+        # default example of input/format
+        input_box.SetValue("..12....4..4.....9.........7.582.1..3....7.9..4.31.7.22...319.........8...74....5")
         if input_box.ShowModal() == wx.ID_OK:
-            print('You entered: %s\n' % input_box.GetValue())
             input_box.GetValue()
             self.saveData(input_box.GetValue())
         input_box.Destroy()
 
-
-
+    # used when importing puzzle to set the squares to the corresponding values
     def saveData(self, input):
         i = 0
         for char in input:
             if char == ".":
+                # blank square
                 self.my_controls[i].SetValue("")
             else:
+                # filled in square
                 self.my_controls[i].SetValue(char)
             self.my_controls[i].SetForegroundColour(wx.BLACK)
             i += 1
 
+    # goes through either the row, column, or quadrant of current square
+    # and eliminates possible numbers from that squares
+    # EX: square [0,0] rn has possibilities of 1, 2, 4, & 9 butt there is
+    # a 9 in the row, so the new possibilities of the square are 1, 2, & 4
     def checkRulesAndEliminate(self, indices, squares, square, i):
-
-
         for index in indices:
-            # print("index" + str(index))
+            # if there is only one numb in a square than remove that num from possibilites
             if len(squares[index]) == 1 and index != i:
                 # remove that value from the current square's list
-                # this is a list
                 taken_value = str(squares[index][0])
-                # print("Taken Value:" + taken_value)
-                # print("type of taken value: " + str(type(taken_value)))
 
-                # try:
-                #     print("Removing taken value: " + taken_value)
-                #     square.remove(taken_value)
-                #     print("Getting here")
-                # except ValueError:
-                #     print("GGGGGGetting an error")
-                #     pass
                 try:
-                    print("OLD square list: " + str(square))
-                    print("Removing taken value: " + taken_value)
+                    # need to do this b/c of mutability of lists
                     square = list(square)
                     square.remove(taken_value)
                     square = tuple(square)
                     squares[i] = square
-                    # squares[i] = square
-                    print("NEW square list: " + str(square))
-
                 except ValueError:
-                    # print("Error")
+                    # gets here if taken value isn't a possibility of current square
                     pass
         return square
 
+    # determines if there exists a 'unique value' for the current square
+    # and sets that square's value to the 'unique value' iff so
+    # EX: square [0,0] has possibilities 1, 2, & 4 but no other square in the row
+    # has a possibility of being a 2, so square [0,0] must be 2
     def testUniqueness(self, indices, squares, square, i):
         for square_value in square:
             if len(square) == 1:
                 break
             found_value = False
             for index in indices:
-                print("----------------------------------INDEX:" + str(index))
                 if index != i:
                     for opponent_value in squares[index]:
                         if opponent_value == square_value:
                             found_value = True
 
+            # found a 'unique value'
             if not found_value:
-                    # print("FOUND UNIQUE ROW VALUE")
-                    # print("UR OLD Square: " + str(square))
-                    # set that square to that value
                 square = tuple(square_value)
-                    # print("UR NEW square list: " + str(square))
                 squares[i] = square
                 break
         return square
 
 
-            # for square_value in square:
-            #     if len(square) == 1:
-            #         break
-            #     found_value = False
-            #     for index in row_indices:
-            #         if index != i:
-            #             for opponent_value in squares[index]:
-            #                 if opponent_value == square_value:
-            #                     found_value = True
-            #
-            #     if not found_value:
-            #         print("FOUND UNIQUE ROW VALUE")
-            #         print("UR OLD Square: " + str(square))
-            #         # set that square to that value
-            #         square = tuple(square_value)
-            #         print("UR NEW square list: " + str(square))
-            #         squares[i] = square
-            #         break
-
-
+    # function called when "Solve Puzzle" button is clicked
+    # solves the puzzle and puts answers in red
     def onClick(self, event):
+        # each square is inherently given the possibility of being any number
         possibilities = ("1", "2", "3", "4", "5", "6", "7", "8", "9")
         squares = []
         for i in range(81):
             squares.append(possibilities)
 
+        # filled in used to determine when to stop looping through solution
+        # if puzzle is unsolvable then use num_of_times_through to stop loop after 100 times
         filled_in = 0
+        num_of_times_through = 0
+
         i=0
         for sq in self.my_controls:
+            # setting the square possibilities to only one value if inputted
             if(sq.GetValue() != ""):
-                # print("Not a blank square")
                 squares[i] = tuple(sq.GetValue())
                 filled_in += 1
-                # print("Blank square")
             i+=1
 
-        print("Filled in: " + str(filled_in))
-
-        # above is working correctly
-        num_of_times_through = 0
-        while(num_of_times_through < 100 and filled_in < 81):
-            print("Filled in: " + str(filled_in))
-            print("----dddd----" + str(num_of_times_through))
+        while(num_of_times_through <= 100 and filled_in < 81):
             num_of_times_through += 1
             i=0
             for square in squares:
-
+                # if square already has only one value, then go to next iteration
                 if len(square) == 1:
-                    # go to next loop
-                    # print("ONLY one value in current square")
                     i+=1
                     continue
-
+                # if square does not have only one value:
                 else:
-                    # print("MORE than one value in current square")
+                    # deterimines indices of connected squares to current square
                     row_indices = self.determineRow(i)
-                    # print("ROW INDICES: " + str(row_indices))
                     col_indices = self.determineCol(i)
-                    # print("COL INDICES: " + str(col_indices))
                     box_indices = self.determineBox(i)
-                    # print("BOX INDICES: " + str(box_indices))
 
-                    # box_indices = self.determineBox(80)
-                    # print(row_indices)
-                    # print(col_indices)
-                    # print(box_indices)
-
-                    # have row indices
-                    # have list of lists that contain possible numbers for each square
-                    # square contains list of possibilities for current squares
-                    # go through row indices and if any are single then get rid of that value from current squares
-
-                    # for index in row_indices:
-                    #     # print("index" + str(index))
-                    #     if len(squares[index]) == 1 and index != i:
-                    #         # remove that value from the current square's list
-                    #         # this is a list
-                    #         taken_value = str(squares[index][0])
-                    #         # print("Taken Value:" + taken_value)
-                    #         # print("type of taken value: " + str(type(taken_value)))
-                    #
-                    #         # try:
-                    #         #     print("Removing taken value: " + taken_value)
-                    #         #     square.remove(taken_value)
-                    #         #     print("Getting here")
-                    #         # except ValueError:
-                    #         #     print("GGGGGGetting an error")
-                    #         #     pass
-                    #         try:
-                    #             # print("OLD square list: " + str(square))
-                    #             # print("Removing taken value: " + taken_value)
-                    #             square = list(square)
-                    #             square.remove(taken_value)
-                    #             square = tuple(square)
-                    #             squares[i] = square
-                    #             # squares[i] = square
-                    #             # print("NEW square list: " + str(square))
-                    #         except ValueError:
-                    #             # print("Error")
-                    #             pass
+                    # eliminates possibilities from current square's possibilities
                     square = self.checkRulesAndEliminate(row_indices, squares, square, i)
                     square = self.checkRulesAndEliminate(col_indices, squares, square, i)
                     square = self.checkRulesAndEliminate(box_indices, squares, square, i)
 
+                    # determines if current square must be a certain value
                     square = self.testUniqueness(row_indices, squares, square, i)
                     square = self.testUniqueness(col_indices, squares, square, i)
                     square = self.testUniqueness(box_indices, squares, square, i)
 
-
-
-                                # square.remove(taken_value)
-                    # for index in col_indices:
-                    #     # print("COLIndex: " + str(index))
-                    #     # print("COL Value: " + str(squares[index]))
-                    #     # need to add that it's not the current one being tested
-                    #     if len(squares[index]) == 1 and index != i:
-                    #         taken_value = str(squares[index][0])
-                    #
-                    #         try:
-                    #             print("COL OLD square list: " + str(square))
-                    #             print("COL Removing taken value: " + taken_value)
-                    #             square = list(square)
-                    #             square.remove(taken_value)
-                    #             square = tuple(square)
-                    #             squares[i] = square
-                    #             print("NEW square list: " + str(square))
-                    #         except ValueError:
-                    #             print("Error")
-                    #             pass
-                    #
-                    # for index in box_indices:
-                    #     if (len(square) == 1):
-                    #         break
-                    #     if len(squares[index]) == 1 and index != i:
-                    #         taken_value = str(squares[index][0])
-                    #
-                    #         try:
-                    #             print("BOX OLD square list: " + str(square))
-                    #             print("BOX Removing taken value: " + taken_value)
-                    #             square = list(square)
-                    #             square.remove(taken_value)
-                    #             square = tuple(square)
-                    #             squares[i] = square
-                    #             print("NEW square list: " + str(square))
-                    #         except ValueError:
-                    #             print("Error")
-                    #             pass
-
-
-                    # testing row uniqueness
-                    # for square_value in square:
-                    #     if len(square) == 1:
-                    #         break
-                    #     found_value = False
-                    #     for index in row_indices:
-                    #         if index != i:
-                    #             for opponent_value in squares[index]:
-                    #                 if opponent_value == square_value:
-                    #                     found_value = True
-                    #
-                    #     if not found_value:
-                    #         print("FOUND UNIQUE ROW VALUE")
-                    #         print("UR OLD Square: " + str(square))
-                    #         # set that square to that value
-                    #         square = tuple(square_value)
-                    #         print("UR NEW square list: " + str(square))
-                    #         squares[i] = square
-                    #         break
-                    #
-                    # # testing col uniqueness
-                    # for square_value in square:
-                    #     if len(square) == 1:
-                    #         break
-                    #     found_value = False
-                    #     for index in col_indices:
-                    #         if index != i:
-                    #             for opponent_value in squares[index]:
-                    #                 if opponent_value == square_value:
-                    #                     found_value = True
-                    #
-                    #     if not found_value:
-                    #         print("FOUND UNIQUE COL VALUE")
-                    #         print("UC OLD Square: " + str(square))
-                    #         # set that square to that value
-                    #         square = tuple(square_value)
-                    #         print("NEW square list: " + str(square))
-                    #         squares[i] = square
-                    #         break
-                    #
-                    # # testing box uniqueness
-                    # for square_value in square:
-                    #     if len(square) == 1:
-                    #         break
-                    #     found_value = False
-                    #     for index in box_indices:
-                    #         if index != i:
-                    #             for opponent_value in squares[index]:
-                    #                 if opponent_value == square_value:
-                    #                     found_value = True
-                    #
-                    #     if not found_value:
-                    #         print("FOUND UNIQUE BOX VALUE")
-                    #         print("UB OLD Square: " + str(square))
-                    #         # set that square to that value
-                    #         square = tuple(square_value)
-                    #         print("NEW square list: " + str(square))
-                    #         squares[i] = square
-                    #         break
-
-
-
+                    # iff the # of possible values in current square is one, then set that square
                     if len(square) == 1:
-                        # make it appear
+                        # answers are in red
                         self.my_controls[i].SetForegroundColour(wx.RED)
                         self.my_controls[i].SetValue(square[0])
-                        # print("Adding one to filled in")
-                        # print("------------------------------GOT IT" + str(square[0]))
                         filled_in += 1
-
 
                     i+=1
 
-                    # filled_in += 1
 
 
-
-
-
-            j=1
-        # for index in col_indices:
-        #     if len(squares[index]) == 1:
-        #                 # remove that value from the current square's list
-        #         pass
-        #         # then do the same for box box_indices
-            for square in squares:
-                print("____!!!!______{}{}".format(j, square))
-                j += 1
-                # end of for loop: go to next square and do it all again
-        #solve puzzle here
-        #then reveal in red the answers
-
+    # called whenever text in a square is changed
+    # number must be a number 1-9, if not then nothing appears when typing
     def testValidity(self, event):
-
-        # print(type(event.GetString()))
-        # print("ID: " + str(event.GetId()))
-
 
         index_entered = -1
         value_entered = -1
 
+        # if the square is blank (square was just erased)
         if self.my_controls[event.GetId()].GetValue() == "":
-            # do blue or white here
-            # print("BLANK VALUE")
+            # determine which quadrant the square is in and set to either White
+            # or blue depending on location of square
             if self.getQuadrantColor(event.GetId()) == "Blue":
-                # print("AYYYYE")
                 self.my_controls[event.GetId()].SetBackgroundColour((211, 232, 245))
             else:
-                # print("NAY")
                 self.my_controls[event.GetId()].SetBackgroundColour((255, 255, 255))
 
-            # for num in range(9):
-            #     current_num = num + 1
-            #     current_match_list = []
-            #
-            #     row_indices = self.determineRow(event.GetId())
-            #     col_indices = self.determineCol(event.GetId())
-            #     box_indices = self.determineBox(event.GetId())
-            #
-            #     for index in row_indices:
-            #         if str(current_num) == self.my_controls[index].GetValue():
-            #             current_match_list.append(index)
-            #             print("Current match list: " + str(current_match_list))
-            #
-            #     if len(current_match_list) == 1:
-            #         # do blue or white here
-            #         if self.getQuadrantColor(current_match_list[0]) == "Blue":
-            #             self.my_controls[current_match_list[0]].SetBackgroundColour((211, 232, 245))
-            #         else:
-            #             self.my_controls[current_match_list[0]].SetBackgroundColour((255, 255, 255))
-            #
-            #     current_match_list = []
-            #     for index in col_indices:
-            #         if str(current_num) == self.my_controls[index].GetValue():
-            #             current_match_list.append(index)
-            #             print("col Current match list: " + str(current_match_list))
-            #     if len(current_match_list) == 1:
-            #         # do blue or white here
-            #         if self.getQuadrantColor(current_match_list[0]) == "Blue":
-            #             self.my_controls[current_match_list[0]].SetBackgroundColour((211, 232, 245))
-            #         else:
-            #             self.my_controls[current_match_list[0]].SetBackgroundColour((255, 255, 255))
-            #
-            #     current_match_list = []
-            #     for index in box_indices:
-            #         if str(current_num) == self.my_controls[index].GetValue():
-            #             current_match_list.append(index)
-            #             print("box Current match list: " + str(current_match_list))
-            #
-            #     if len(current_match_list) == 1:
-            #         # do blue or white here
-            #         if self.getQuadrantColor(current_match_list[0]) == "Blue":
-            #             self.my_controls[current_match_list[0]].SetBackgroundColour((211, 232, 245))
-            #         else:
-            #             self.my_controls[current_match_list[0]].SetBackgroundColour((255, 255, 255))
-
-
-
-
-            # need to turn back
+        # if there is a character placed into square
         else:
             try:
                 index_entered = event.GetId()
-                # print("index entered: " + str(event.GetId()))
+                # tries to turn current value into an int (if str then error occurs)
                 value_entered = int(self.my_controls[index_entered].GetValue())
+                # makes sure value entered is a num from 1-9
                 if value_entered <= 0 or value_entered >= 10:
-                    # print("Not allowed")
-                    # self.text_control.SetValue("8")
                     self.my_controls[index_entered].SetValue("")
+
+            # value entered was not a number
             except ValueError:
-                    # make it turn red here
-                    # self.text_control.SetValue("")
-                    # print("Getting here")
                     self.my_controls[index_entered].SetValue("")
-                    # print("Not allowed")
-
-        # if value_entered >= 1 and value_entered <= 9:
-        # # go through here and see if not allowed based on rules of row, col, and box
-        # # row:
-        #     row_indices = self.determineRow(index_entered)
-        #     list_of_matching = []
-        #
-        #     row_dup = False
-        #     for index in row_indices:
-        #         if self.my_controls[index].GetValue() == str(value_entered):
-        #             print("1 There's a match")
-        #             list_of_matching.append(index)
-        #     for index in list_of_matching:
-        #         if len(list_of_matching) > 1:
-        #             self.my_controls[index].SetBackgroundColour((182, 108, 121))
-        #             print("RED")
-        #             row_dup = True
-        #         else:
-        #             if self.getQuadrantColor(index) == "Blue":
-        #                 print("1 Turning blue")
-        #                 self.my_controls[index].SetBackgroundColour((211, 232, 245))
-        #             else:
-        #                 self.my_controls[index].SetBackgroundColour((255, 255, 255))
-        #                 print("1 Turning white")
-        #
-        #     # col:
-        #     col_indices = self.determineCol(index_entered)
-        #     list_of_matching = []
-        #
-        #     col_dup = False
-        #     for index in col_indices:
-        #         if self.my_controls[index].GetValue() == str(value_entered):
-        #             list_of_matching.append(index)
-        #             print("2 There's a match")
-        #     for index in list_of_matching:
-        #         if len(list_of_matching) > 1:
-        #             self.my_controls[index].SetBackgroundColour((182, 108, 121))
-        #             print("2 RED")
-        #             col_dup = True
-        #         else:
-        #             if self.getQuadrantColor(index) == "Blue" and not index == index_entered:
-        #                 self.my_controls[index].SetBackgroundColour((211, 232, 245))
-        #                 print("2 Turning blue")
-        #             elif self.getQuadrantColor(index) == "White" and not index == index_entered:
-        #                 self.my_controls[index].SetBackgroundColour((255, 255, 255))
-        #                 print("2 Turning white")
-        #
-        #
-        #     # box:
-        #     box_indices = self.determineBox(index_entered)
-        #     list_of_matching = []
-        #     for index in box_indices:
-        #         if self.my_controls[index].GetValue() == str(value_entered):
-        #             list_of_matching.append(index)
-        #             print("3 There's a match")
-        #     for index in list_of_matching:
-        #         if len(list_of_matching) > 1:
-        #             self.my_controls[index].SetBackgroundColour((182, 108, 121))
-        #             print("3 RED")
-        #         else:
-        #             if self.getQuadrantColor(index) == "Blue" and not index == index_entered:
-        #                 self.my_controls[index].SetBackgroundColour((211, 232, 245))
-        #                 print("3 Turning blue")
-        #             elif self.getQuadrantColor(index) == "White" and not index == index_entered:
-        #                 self.my_controls[index].SetBackgroundColour((255, 255, 255))
-        #                 print("3 Turning white")
 
 
 
-
-            # num_the_same = 0
-            # for index in row_indices:
-            #     if (self.my_controls[index].GetValue() == str(value_entered)):
-            #         num_the_same += 1
-            #         if num_the_same > 1:
-            #             self.my_controls[event.GetId()].SetBackgroundColour((182, 108, 121))
-            #             print("yep that's a no go")
-            #             break
-            #         else:
-            #             # need to determine quadrant for this
-            #             self.my_controls[event.GetId()].SetBackgroundColour((255, 255, 255))
-
-        # col:
-
-            # col_indices = self.determineCol(index_entered)
-            # num_the_same = 0
-            # for index in col_indices:
-            #     if (self.my_controls[index].GetValue() == str(value_entered)):
-            #         num_the_same += 1
-            #         if num_the_same > 1:
-            #             self.my_controls[event.GetId()].SetBackgroundColour((182, 108, 121))
-            #             print("yep that's a no go")
-            #             break
-            #         else:
-            #             # need to determine quadrant for this
-            #             self.my_controls[event.GetId()].SetBackgroundColour((255, 255, 255))
-
-        # box:
-            # box_indices = self.determineBox(index_entered)
-            # num_the_same = 0
-            # for index in box_indices:
-            #     if (self.my_controls[index].GetValue() == str(value_entered)):
-            #         num_the_same += 1
-            #         if num_the_same > 1:
-            #             self.my_controls[event.GetId()].SetBackgroundColour((182, 108, 121))
-            #             print("yep that's a no go")
-            #             break
-            #         else:
-            #             # need to determine quadrant for this
-            #             self.my_controls[event.GetId()].SetBackgroundColour((255, 255, 255))
-        # else:
-        #     self.my_controls[event.GetId()].SetBackgroundColour((255, 255, 255))
-
-            # how to turn back white upon exit
-
-            # need to test to make sure it's not referring to current box
-
-
-        # col:
-
-        # box:
-
-
+    # GUI work
     def InitUI(self):
         vbox = wx.BoxSizer(wx.VERTICAL)
 
+        # makes 9x9 grid
         gs = wx.GridSizer(9, 9, 0, 0)
-
         self.SetFont(wx.Font(78, wx.SWISS, wx.NORMAL, wx.NORMAL, False,'MS Shell Dlg 2'))
+        # goes through all 81 squares and sets bkrnd color, max length, id
         for i in range(81):
-            #gs.Add(wx.ComboBox(self, 15, "X", choices=["X", "1", "2", "3", "4", "5", "6", "7", "8", "9"], style = wx.CB_READONLY)
             self.text_control = wx.TextCtrl(self, id==i, value="", size=(88,88), style = wx.TE_CENTRE)
-            # self.text_control.SetForegroundColour(wx.BLACK)
-
+            # sets square to white if in TL, TR, BL, BR, or center quadrant
             if (self.getQuadrant(i) == 0 or self.getQuadrant(i) == 6 or self.getQuadrant(i) == 30 or self.getQuadrant(i) == 54 or self.getQuadrant(i) == 60):
-                # print("I: " + str(i))
-                pass
+                self.text_control.SetBackgroundColour((255, 255, 255))
+            # sets square to light blue if in any other quadrant
             else:
                 self.text_control.SetBackgroundColour((211, 232, 245))
 
             self.text_control.SetId(i)
-            # print("----ffff" + str(self.text_control.GetId()))
+            # allows for only one character in each square
             self.text_control.SetMaxLength(1)
+            # fnc testValidity called whenever square value is changed
             self.text_control.Bind(wx.EVT_TEXT, self.testValidity, self.text_control, id=i)
-
             self.my_controls.append(self.text_control)
-            #gs.Add(wx.TextCtrl(self, id==1, value="", size=(88,88), style = wx.TE_CENTRE))
             gs.Add(self.text_control)
 
+        # makes the buttons along bottom of window
         self.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL, False,'MS Shell Dlg 2'))
         butt0 = wx.Button(self, wx.ID_ANY, "Clear Puzzle", (303 ,772))
         butt0.Bind(wx.EVT_BUTTON, self.clearPuzzle)
@@ -583,44 +220,24 @@ class Solver(wx.Frame):
         butt2.Bind(wx.EVT_BUTTON, self.importPuzzle)
 
 
-
-
         vbox.Add(gs, proportion=1, flag=wx.EXPAND)
         self.SetSizer(vbox)
 
 
-
-    def OnPaint(self, event=None):
-        dc = wx.PaintDC(self)
-        dc.Clear()
-        # dc.SetPen(wx.Pen(wx.BLACK, 4))
-
-        x=0
-        for i in range(10):
-
-            # if i==3 or i==6:
-            #     dc.SetPen(wx.Pen(wx.GREEN, width=4))
-            # else:
-            #     dc.SetPen(wx.Pen(wx.BLACK, 4))
-
-            dc.DrawLine(x, 0, x, 792)
-            x += 88
-
-
-        y=0
-        for j in range(10):
-
-            # if j==3 or j==6:
-            #     dc.SetPen(wx.Pen(wx.GREEN, 4))
-            # else:
-            #     dc.SetPen(wx.Pen(wx.BLACK, 4))
-
-            dc.DrawLine(0, y, 792, y)
-            y += 88
-
+# FOR REFERENCE - view of 'indices' of each box in sudoku puzzle:
+# 00 01 02 03 04 05 06 07 08
+# 9 10 11 12 13 14 15 16 17
+# 18 19 20 21 22 23 24 25 26
+# 27 28 29 30 31 32 33 34 35
+# 36 37 38 39 40 41 42 43 44
+# 45 46 47 48 49 50 51 52 53
+# 54 55 56 57 58 59 60 61 62
+# 63 64 65 66 67 68 69 70 71
+# 72 73 74 75 76 77 78 79 80
 
 
 # helper functions
+    # returns indices of the column the square is in
     def determineCol(self, index):
         col_indices = []
         start_number = index % 9
@@ -631,6 +248,7 @@ class Solver(wx.Frame):
 
         return col_indices
 
+    # returns indices of the row the square is in
     def determineRow(self, index):
         row_indices = []
         mult = 0
@@ -658,6 +276,7 @@ class Solver(wx.Frame):
 
         return row_indices
 
+    # returns indices of the box the square is in
     def determineBox(self, index):
 
         mod9 = index % 9
@@ -699,6 +318,7 @@ class Solver(wx.Frame):
 
         return box_indices
 
+    # returns the first index number of the box the current square is in
     def getQuadrant(self, index):
 
         indices = self.determineBox(index)
@@ -706,6 +326,7 @@ class Solver(wx.Frame):
 
         return start_number
 
+    # uses the first number of the quadrant the square is in to determine color
     def getQuadrantColor(self, index):
         start_number = self.getQuadrant(index)
         if self.getQuadrant(index) == 0 or self.getQuadrant(index) == 6 or self.getQuadrant(index) == 30 or self.getQuadrant(index) == 54 or self.getQuadrant(index) == 60:
