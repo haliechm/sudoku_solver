@@ -18,7 +18,7 @@ class Solver(wx.Frame):
         # Create text input
 
         input_box = wx.TextEntryDialog(self, "Enter 81 values to enter into puzzle (use '.' for blank squares)",'Puzzle Input')
-        input_box.SetValue("Example: ....1.82...46.........3..4.7682.5...1.....7...4....2..2.7....1.8.3.........3...5.")
+        input_box.SetValue("....1.82...46.........3..4.7682.5...1.....7...4....2..2.7....1.8.3.........3...5.")
         if input_box.ShowModal() == wx.ID_OK:
             print('You entered: %s\n' % input_box.GetValue())
             input_box.GetValue()
@@ -38,17 +38,7 @@ class Solver(wx.Frame):
             i += 1
 
 
-
-
-
-
-
-
-
     def onClick(self, event):
-
-
-
         possibilities = ("1", "2", "3", "4", "5", "6", "7", "8", "9")
         squares = []
         for i in range(81):
@@ -68,7 +58,7 @@ class Solver(wx.Frame):
 
         # above is working correctly
         num_of_times_through = 0
-        while(num_of_times_through < 10 and filled_in < 81):
+        while(num_of_times_through < 100 and filled_in < 81):
             print("Filled in: " + str(filled_in))
             print("----dddd----" + str(num_of_times_through))
             num_of_times_through += 1
@@ -117,27 +107,18 @@ class Solver(wx.Frame):
                             #     print("GGGGGGetting an error")
                             #     pass
                             try:
-                                print("OLD square list: " + str(square))
-                                print("Removing taken value: " + taken_value)
+                                # print("OLD square list: " + str(square))
+                                # print("Removing taken value: " + taken_value)
                                 square = list(square)
                                 square.remove(taken_value)
                                 square = tuple(square)
                                 squares[i] = square
                                 # squares[i] = square
-                                print("NEW square list: " + str(square))
+                                # print("NEW square list: " + str(square))
                             except ValueError:
-                                print("Error")
+                                # print("Error")
                                 pass
-                            else:
-                                pass
-                                # print("No taken value to be done")
-                                # for value in square:
-                                #     # print("------Value:" + value)
-                                #     # print("type of value: " + str(type(value)))
-                                #     if value == taken_value:
-                                #         print("HOORAH")
-                                #     else:
-                                #         print("BOOOOO")
+
 
 
                                 # square.remove(taken_value)
@@ -149,13 +130,13 @@ class Solver(wx.Frame):
                             taken_value = str(squares[index][0])
 
                             try:
-                                print("COL OLD square list: " + str(square))
-                                print("COL Removing taken value: " + taken_value)
+                                # print("COL OLD square list: " + str(square))
+                                # print("COL Removing taken value: " + taken_value)
                                 square = list(square)
                                 square.remove(taken_value)
                                 square = tuple(square)
                                 squares[i] = square
-                                print("NEW square list: " + str(square))
+                                # print("NEW square list: " + str(square))
                             except ValueError:
                                 print("Error")
                                 pass
@@ -521,7 +502,7 @@ class Solver(wx.Frame):
     def OnPaint(self, event=None):
         dc = wx.PaintDC(self)
         dc.Clear()
-        dc.SetPen(wx.Pen(wx.BLACK, 4))
+        # dc.SetPen(wx.Pen(wx.BLACK, 4))
 
         x=0
         for i in range(10):
