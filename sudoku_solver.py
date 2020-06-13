@@ -7,6 +7,10 @@ import wx
 # make sure default input box row actually works: doesn't work: ....1.82...46.........3..4.7682.5...1.....7...4....2..2.7....1.8.3.........3...5.
 # update README
 
+
+# add brute force algorithm? or other wikipedia found algorithms
+# figure out runtimes
+
 # solves sudoku puzzles
 # works on many puzzles (on sudoku.com solves most easy, med, hard puzzles but not all puzzles (yet))
 class Solver(wx.Frame):
@@ -160,9 +164,9 @@ class Solver(wx.Frame):
                     square = self.testUniqueness(col_indices, squares, square, i)
                     square = self.testUniqueness(box_indices, squares, square, i)
 
-                    squares = self.numberClaiming(col_indices, row_indices, box_indices, squares, square, i)
-                    squares = self.checkForPairs(indices, squares, square, i)
-                    squares = self.checkForTriplets(indices, squares, square, i)
+                    # squares = self.numberClaiming(col_indices, row_indices, box_indices, squares, square, i)
+                    # squares = self.checkForPairs(indices, squares, square, i)
+                    # squares = self.checkForTriplets(indices, squares, square, i)
 
                     # iff the # of possible values in current square is one, then set that square
                     if len(square) == 1:
