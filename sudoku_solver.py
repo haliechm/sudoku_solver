@@ -126,6 +126,8 @@ class Solver(wx.Frame):
         for i in range(81):
             squares.append(possibilities)
 
+        og_list = []
+
         # filled in used to determine when to stop looping through solution
         # if puzzle is unsolvable then use num_of_times_through to stop loop after 100 times
         filled_in = 0
@@ -135,6 +137,7 @@ class Solver(wx.Frame):
         for sq in self.my_controls:
             # setting the square possibilities to only one value if inputted
             if(sq.GetValue() != ""):
+                og_list.append(i)
                 squares[i] = tuple(sq.GetValue())
                 filled_in += 1
             i+=1
@@ -183,7 +186,96 @@ class Solver(wx.Frame):
                     if j % 9 == 2 or j % 9 == 5 or j % 9 == 8:
                         print("!!!!!!!!!!")
 
+        # go through and put a '0' wherever squares is not solved yet
+        i = 0
+        for square in squares:
+            print("---------" + str(i))
+            if not len(square) == 1:
+                square = tuple("0")
+                squares[i] = square
+
+            # print("-------" + str(square))
+            print("-------" + str(squares[i]))
+            i += 1
+
                 # if get here and still not work then try to brute force it ?
+        if filled_in < 81:
+            print("gggggggetting here")
+            squares = self.bruteForceUsingRecursion(0, squares)
+
+            i = 0
+            for square in squares:
+                if len(square) == 1:
+                    # answers are in red
+                    # self.my_controls[i].SetForegroundColour(wx.RED)
+                    if not i in og_list:
+                        self.my_controls[i].SetForegroundColour(wx.RED)
+                        self.my_controls[i].SetValue(square[0])
+                i += 1
+
+
+    def bruteForceUsingRecursion(self, index, squares):
+
+        if index > 80:
+            print("greater than 80")
+            return squares
+        print("right here")
+        if squares[index] == tuple("0"):
+            print("YEP: " + str(index))
+            for number in "123456789":
+                if self.allowed(squares, index, number):
+                    print("ALLOWED NUMBER: " + number)
+                    squares[index] = tuple(number)
+                    index += 1
+
+                    solution = self.bruteForceUsingRecursion(index, squares)
+                    if solution:
+                        print("SOLUTION: " + str(solution))
+                        return solution
+                    index -= 1
+                    if index < 0:
+                        print("MAJOR ERROR")
+                    squares[index] = tuple("0")
+        else:
+            print("!!!!" + str(squares[index]))
+            index += 1
+            return self.bruteForceUsingRecursion(index, squares)
+
+
+    def allowed(self, squares, index, number):
+        # check if allowed in row
+        row_indices = self.determineRow(index)
+        for ind in row_indices:
+            print("111111111111111111111111")
+            print("111111: " + str(squares[ind][0]))
+            if squares[ind][0] == number:
+                return False
+
+
+        # check if allowed in col
+        col_indices = self.determineCol(index)
+        for ind in col_indices:
+            print("INDEX: " + str(ind))
+            print("222222222222222222222222")
+            print("2222222: " + str(squares[ind][0]))
+            if squares[ind][0] == number:
+                return False
+
+
+        # check if allowed in box
+        box_indices = self.determineBox(index)
+        for ind in box_indices:
+            print("33333333333333333333")
+            print("333333333: " + str(squares[ind][0]))
+            if squares[ind][0] == number:
+                return False
+
+
+
+        return True
+
+
+
 
 
 
