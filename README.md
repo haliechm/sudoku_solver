@@ -6,7 +6,7 @@ Made using python (wxPython for gui, text editor: Atom)
 Currently works on most puzzles (easy, medium, & difficult)
 
 Use https://qqwing.com/generate.html to generate puzzles in the correct format for using the "Input Puzzle" button (change 'Output format' to 'One line').
-
+Example of correct format using Expert puzzle: ......95.4..6.5..3........4.75..8......3.....68.24..9.74....6...5..7...29..8...35
 
 At first made a simple solver where the puzzle continuously iterates through the squares and narrows down the possible square values by looking at values in the current row, column, and box. Then added where the solver would determine if a square has to have a particular value because none of the other squares in the current row, column, or box could have that value. This works on most puzzles on Sudoku.com. However, it did not work on expert puzzles where inference was needed. To fix this, I added a recursive brute force algorithm that only runs when no solution is found using the previously mentioned approach. 
 Brute force algorithm used is called Backtracking (described here: https://en.wikipedia.org/wiki/Sudoku_solving_algorithms) 
