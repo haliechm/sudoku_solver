@@ -3,7 +3,9 @@ import wx
 
 
 # solves sudoku puzzles
-# works on most puzzles (on sudoku.com solves most easy, med, hard puzzles)
+# works on most puzzles (on sudoku.com solves most easy, med, hard puzzles) (will eventually solve extremely
+# hard puzzles but may take up to a few hours depending on difficulty)
+# if puzzle inputs break rules than the puzzle is unsolvable (will continuously loop and not solve)
 class Solver(wx.Frame):
     def __init__(self, parent, title):
         super(Solver, self).__init__(parent, title=title, size=(792, 820))
